@@ -7,7 +7,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private Rigidbody rigidBody = null;
     [SerializeField] private Vector2 minMaxYaw = new(-90f, 90f);
-
     [SerializeField] private int rayDistance = 5;
     [SerializeField] private LayerMask interactionMask = default;
     [SerializeField] private Transform root = null;
@@ -16,6 +15,9 @@ public class Player : MonoBehaviour
     private Vector3 input = Vector3.zero;
     private Vector2 rotationInput;
     private Vector2 currentRotation;
+
+    public bool canMove = true;
+    public InteractionToggleSetter forcedInteraction = null; // AJOUT : Pour forcer l'interaction pendant le sommeil
 
     private void Reset()
     {
@@ -33,6 +35,13 @@ public class Player : MonoBehaviour
         if (!context.performed)
             return;
 
+        // AJOUT : Si on a une interaction forcée (ex: pendant le sommeil), l'utiliser directement
+        if (forcedInteraction != null)
+        {
+            Debug.Log("Using forced interaction");
+            forcedInteraction.Interact();
+            return;
+        }
 
         Ray ray = new Ray(head.position, head.forward);
         RaycastHit hit;
@@ -44,22 +53,26 @@ public class Player : MonoBehaviour
         }
     }
 
-
     public void Player_OnMove(CallbackContext context)
     {
+        if (!canMove) return;
+
         input = context.ReadValue<Vector2>();
         input.z = input.y;
         input.y = 0;
     }
 
-
     public void Player_OnLook(CallbackContext context)
     {
+        if (!canMove) return;
+
         rotationInput = context.ReadValue<Vector2>();
     }
 
     private void LateUpdate()
     {
+        if (!canMove) return;
+
         currentRotation.x += -rotationInput.y * rotationSpeed * Time.deltaTime;
         currentRotation.y += rotationInput.x * rotationSpeed * Time.deltaTime;
         currentRotation.x = Mathf.Clamp(currentRotation.x, minMaxYaw.x, minMaxYaw.y);
@@ -70,6 +83,12 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!canMove)
+        {
+            rigidBody.linearVelocity = Vector3.zero;
+            return;
+        }
+
         rigidBody.linearVelocity = root.rotation * (speed * input.normalized);
     }
 }
