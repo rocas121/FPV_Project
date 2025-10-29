@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     [SerializeField] private Transform root = null;
     [SerializeField] private Transform head = null;
 
+    [SerializeField] private GameObject bulletHolePrefab = null;
+
     private Vector3 input = Vector3.zero;
     private Vector2 rotationInput;
     private Vector2 currentRotation;
@@ -31,10 +33,10 @@ public class Player : MonoBehaviour
 
     public void Player_OnInteract(CallbackContext context)
     {
-        Debug.Log("pressed E");
+
         if (!context.performed)
             return;
-
+        Debug.Log("pressed E");
         // AJOUT : Si on a une interaction forcée (ex: pendant le sommeil), l'utiliser directement
         if (forcedInteraction != null)
         {
@@ -67,6 +69,32 @@ public class Player : MonoBehaviour
         if (!canMove) return;
 
         rotationInput = context.ReadValue<Vector2>();
+    }
+
+    public void Player_Shoot(CallbackContext context)
+    {
+
+        if (!context.performed)
+            return;
+
+        Ray ray = new Ray(head.position, head.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, rayDistance, interactionMask))
+        {
+            Debug.Log("Target hit");
+            if (bulletHolePrefab != null)
+            {
+                //Sprite position
+                Vector3 spawnPos = hit.point + hit.normal * 0.01f;
+                Quaternion rotation = Quaternion.LookRotation(hit.normal);
+
+                GameObject hole = Instantiate(bulletHolePrefab, spawnPos, rotation);
+                hole.transform.SetParent(hit.collider.transform);
+
+                Destroy(hole, 5f);
+            }
+        }
     }
 
     private void LateUpdate()
