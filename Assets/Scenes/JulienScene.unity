@@ -893,7 +893,7 @@ MonoBehaviour:
   topLid: {fileID: 1793698496}
   bottomLid: {fileID: 1050183472}
   bedTrigger: {fileID: 736100191}
-  interactionToggleSetter: {fileID: 0}
+  interactionToggleSetter: {fileID: 736100190}
   snoreLoopSource: {fileID: 1943304082}
   sfxSource: {fileID: 986783886}
   yawnClip: {fileID: 8300000, guid: dac38b64e9dfbf945872f41db5ea5c40, type: 3}
