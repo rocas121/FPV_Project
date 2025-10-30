@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
 
 
     [Header("Shoot Mechanic")]
+    [SerializeField] private int shootingRange = 50;
     [SerializeField] private GameObject bulletHolePrefab = null;
     [SerializeField] private GameObject vfx = null;
     [SerializeField] private AudioClip sound = null;
@@ -93,7 +94,7 @@ public class Player : MonoBehaviour
         Ray ray = new Ray(head.position, head.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, rayDistance, interactionMask))
+        if (Physics.Raycast(ray, out hit, shootingRange, interactionMask))
         {
             Debug.Log("Target hit");
             if (bulletHolePrefab != null)
