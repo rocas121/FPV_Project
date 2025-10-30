@@ -17,5 +17,9 @@ public class animController : MonoBehaviour
         {
             animator.Play("HandPoint", 0, 0f);
         }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            animator.Play("Shoot", 0, 0f);
+        }
     }
 }
