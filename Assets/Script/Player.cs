@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
         if (!context.performed)
             return;
         Debug.Log("pressed E");
-        // AJOUT : Si on a une interaction forcée (ex: pendant le sommeil), l'utiliser directement
+        // AJOUT : Si on a une interaction forcï¿½e (ex: pendant le sommeil), l'utiliser directement
         if (forcedInteraction != null)
         {
             Debug.Log("Using forced interaction");
