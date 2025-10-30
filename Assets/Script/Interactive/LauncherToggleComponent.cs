@@ -41,7 +41,6 @@ public class AirstrikeDesignator : BaseToggleComponent
 
     void Update()
     {
-        // Permettre le déplacement pendant la désignation (sans gravité)
         if (isDesignating && player != null)
         {
             float h = Input.GetAxis("Horizontal");
@@ -59,53 +58,46 @@ public class AirstrikeDesignator : BaseToggleComponent
     {
         isDesignating = true;
 
-        // Sauvegarder l'état
+        // Sauvegarde de la position/rotation du joueur
         startPos = playerRoot.position;
         startRot = playerRoot.rotation;
         startCamRot = playerHead.localRotation;
         savedGravity = playerRb.useGravity;
         savedSpeed = GetSpeed();
 
-        // Désactiver la gravité et le mouvement normal
+        // Désactive les contrôles normaux
         player.canMove = false;
         playerRb.useGravity = false;
         playerRb.linearVelocity = Vector3.zero;
         playerRb.angularVelocity = Vector3.zero;
 
-        // Attendre un frame pour que les changements prennent effet
         yield return null;
 
-        // Téléporter au-dessus de buildingsRoot avec la hauteur Y définie
+        // TP au dessus de la zone
         Vector3 above = buildingsRoot 
             ? new Vector3(buildingsRoot.position.x, hoverHeight, buildingsRoot.position.z)
             : new Vector3(startPos.x, hoverHeight, startPos.z);
 
-        // Forcer la position et rotation
         playerRb.position = above;
         playerRoot.position = above;
         playerRoot.rotation = Quaternion.identity;
-        
-        // Caméra regarde vers le bas (90° sur X)
         playerHead.localRotation = Quaternion.Euler(90f, 0f, 0f);
 
-        // Afficher le canvas de ciblage
         if (targetingCanvas != null)
             targetingCanvas.gameObject.SetActive(true);
 
         yield return null;
 
-        // Attendre 5 secondes (le joueur peut se déplacer pendant ce temps)
+        // Phase de visée
         yield return new WaitForSeconds(markDelay);
 
-        // Cacher le canvas
         if (targetingCanvas != null)
             targetingCanvas.gameObject.SetActive(false);
 
-        // Marquer la zone directement sous la caméra
+        // Point d'impact sous la caméra
         Vector3 camPos = playerHead.position;
         lastMarkedPoint = new Vector3(camPos.x, groundY, camPos.z);
 
-        // Activer le particle effect de marquage (rotation -90° sur X)
         if (markFX)
         {
             markFX.transform.SetPositionAndRotation(
@@ -115,7 +107,7 @@ public class AirstrikeDesignator : BaseToggleComponent
             markFX.Play();
         }
 
-        // Restaurer l'état du joueur
+        // Restaure le joueur
         playerRb.position = startPos;
         playerRoot.SetPositionAndRotation(startPos, startRot);
         playerHead.localRotation = startCamRot;
@@ -125,7 +117,6 @@ public class AirstrikeDesignator : BaseToggleComponent
 
         isDesignating = false;
 
-        // Lancer la bombe
         StartCoroutine(DropBomb(lastMarkedPoint));
 
         Deactivate();
@@ -133,7 +124,6 @@ public class AirstrikeDesignator : BaseToggleComponent
 
     IEnumerator DropBomb(Vector3 target)
     {
-        // Créer la bombe au-dessus de la zone marquée, orientée vers le bas
         GameObject bomb = Instantiate(bombPrefab, target + Vector3.up * dropHeight, Quaternion.Euler(90f, 0f, 0f));
         var rb = bomb.GetComponent<Rigidbody>();
         
@@ -143,7 +133,7 @@ public class AirstrikeDesignator : BaseToggleComponent
         rb.useGravity = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-        // Faire tomber la bombe à grande vitesse (constante)
+        // Chute de la bombe
         while (bomb != null && bomb.transform.position.y > groundY + 0.5f)
         {
             rb.MovePosition(bomb.transform.position + Vector3.down * bombSpeed * Time.deltaTime);
@@ -152,7 +142,7 @@ public class AirstrikeDesignator : BaseToggleComponent
 
         if (bomb == null) yield break;
 
-        // Impact : explosion (rotation -90° sur X)
+        // Explosion
         if (impactFX)
         {
             impactFX.transform.SetPositionAndRotation(
@@ -162,9 +152,7 @@ public class AirstrikeDesignator : BaseToggleComponent
             impactFX.Play();
         }
 
-        // Détruire TOUS les bâtiments
         DestroyAllBuildings();
-
         Destroy(bomb);
     }
 
@@ -172,7 +160,6 @@ public class AirstrikeDesignator : BaseToggleComponent
     {
         if (buildingsRoot == null) return;
 
-        // Détruire tous les enfants de buildingsRoot
         int childCount = buildingsRoot.childCount;
         for (int i = childCount - 1; i >= 0; i--)
         {

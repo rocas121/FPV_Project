@@ -11,7 +11,7 @@ public class BedToggleComponent : BaseToggleComponent
     [SerializeField] private RectTransform topLid;
     [SerializeField] private RectTransform bottomLid;
     [SerializeField] private Collider bedTrigger;
-    [SerializeField] private InteractionToggleSetter interactionToggleSetter; // AJOUT : Référence à l'InteractionToggleSetter
+    [SerializeField] private InteractionToggleSetter interactionToggleSetter;
 
     [Header("Audio")]
     [SerializeField] private AudioSource snoreLoopSource;
@@ -31,7 +31,6 @@ public class BedToggleComponent : BaseToggleComponent
 
     private void Start()
     {
-        // AJOUT : Récupérer automatiquement l'InteractionToggleSetter si pas assigné
         if (interactionToggleSetter == null)
             interactionToggleSetter = GetComponent<InteractionToggleSetter>();
     }
@@ -63,29 +62,23 @@ public class BedToggleComponent : BaseToggleComponent
         bedFwd.Normalize();
         Quaternion bedYaw = Quaternion.LookRotation(bedFwd, Vector3.up);
 
-        // Désactiver le trigger
         if (bedTrigger) bedTrigger.enabled = false;
 
-        // Bloquer le mouvement mais garder les interactions
         if (playerController)
         {
             playerController.canMove = false;
-            // AJOUT : Forcer l'interaction avec le lit pendant le sommeil
             playerController.forcedInteraction = interactionToggleSetter;
         }
 
-        // Attendre 1 frame
         yield return null;
 
-        // Téléporter
+        // TP dans le lit
         playerRoot.position = bedAnchor.position;
         playerRoot.rotation = bedYaw;
         cameraTransform.localRotation = Quaternion.identity;
 
-        // Attendre avant de réactiver le trigger
         yield return new WaitForSeconds(0.2f);
 
-        // Réactiver le trigger
         if (bedTrigger) bedTrigger.enabled = true;
 
         if (sfxSource && yawnClip) sfxSource.PlayOneShot(yawnClip);
@@ -110,7 +103,6 @@ public class BedToggleComponent : BaseToggleComponent
             false
         );
 
-        // Désactiver le trigger
         if (bedTrigger) bedTrigger.enabled = false;
 
         playerRoot.position = startPlayerPos;
@@ -119,15 +111,12 @@ public class BedToggleComponent : BaseToggleComponent
 
         yield return null;
 
-        // Réactiver le mouvement
         if (playerController)
         {
             playerController.canMove = true;
-            // AJOUT : Retirer l'interaction forcée
             playerController.forcedInteraction = null;
         }
 
-        // Réactiver le trigger
         if (bedTrigger) bedTrigger.enabled = true;
 
         isSleeping = false;
@@ -161,13 +150,9 @@ public class BedToggleComponent : BaseToggleComponent
     void SetLids(float offset)
     {
         if (topLid != null)
-        {
             topLid.anchoredPosition = new Vector2(0, offset);
-        }
 
         if (bottomLid != null)
-        {
             bottomLid.anchoredPosition = new Vector2(0, -offset);
-        }
     }
 }
