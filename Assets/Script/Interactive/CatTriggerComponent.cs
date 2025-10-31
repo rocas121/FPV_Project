@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.Audio;
 using System.Collections;
+using Unity.VisualScripting;
 
 //Plays the animation when triggered
 //Plays sound along with cooldown to avoid spamming
 //pick randomly between 2 numbers for multiplier
-public class CatTriggerComponent : BaseTriggerComponent
+public class CatTriggerComponent : BaseToggleComponent
 {
     [Header("Cat setting")]
     [SerializeField] private AudioClip sound = null;
@@ -65,5 +66,10 @@ public class CatTriggerComponent : BaseTriggerComponent
         idle.SetActive(true);
         animated.SetActive(false);
         cooldown = true;
+    }
+
+    //J'avais un singleton pour une activation direct sans toggle mais le nombre max de petit script est 4 
+    protected override void DeactivateComponent() {
+        ActivateComponent();
     }
 }
