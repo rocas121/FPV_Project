@@ -1,9 +1,12 @@
 using UnityEngine;
 
+
+//Set Active light source and change material when toggled on and off
 public class LampSystemToggle : BaseToggleComponent
 {
     [SerializeField] private new GameObject light = null;
 
+    [Header("Material setting")]
     [SerializeField] private Renderer materialTarget = null;
     [SerializeField] private Material materialOn = null;
     [SerializeField] private Material materialOff = null;

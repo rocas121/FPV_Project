@@ -1,10 +1,11 @@
 using UnityEngine;
 
+//Turn particle and change button material when toggled on and off
 public class ShowerToggleComponent : BaseToggleComponent
 {
     [SerializeField] private new ParticleSystem particleSystem = null;
 
-
+    [Header("Material setting")]
     [SerializeField] private Renderer materialTarget = null;
     [SerializeField] private Material materialOn = null;
     [SerializeField] private Material materialOff = null;
