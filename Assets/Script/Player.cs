@@ -64,8 +64,13 @@ public class Player : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, rayDistance, interactionMask))
         {
+            //For toggle
             if (hit.collider.TryGetComponent(out InteractionToggleSetter interactionToggleSetter))
                 interactionToggleSetter.Interact();
+
+            //For trigger once
+            if (hit.collider.TryGetComponent(out TriggerSetter triggerSetter))
+                triggerSetter.Activate();
         }
     }
 
